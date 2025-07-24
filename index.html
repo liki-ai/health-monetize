@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Strategic Plan: Healthcare Data Monetization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Slate & Sky -->
+    <!-- Application Structure Plan: The dashboard structure is retained for its proven usability. It's enhanced with a more detailed, real-time architecture diagram (Kafka, Spark, MongoDB) and two new AI-powered modules using the OpenAI API. A "Strategy Assistant" is added to the Monetization section to generate project briefs, and a "Compliance Q&A" tool is added to the Governance section for on-demand clarification. This evolution transforms the static plan into a dynamic decision-support tool, allowing users to not only explore the plan but also generate new, relevant insights directly within the application. -->
+    <!-- Visualization & Content Choices: 
+        - **Data Architecture:** Goal: Explain the advanced, real-time data flow. Viz: The HTML/CSS diagram is updated to reflect the new Kafka -> Spark -> MongoDB stack. Interaction: Clicking a stage opens a modal with detailed technical specifications on data masking, processing, and storage. Justification: This maintains the high-level clarity while providing deep technical detail on demand.
+        - **Strategy Assistant (OpenAI API):** Goal: Make monetization strategies more tangible. Viz: A simple form within a card in the "Monetization" section. Interaction: User selects a strategy and focus area, clicks "Generate," and the OpenAI API call produces a high-level project brief. Justification: This generative feature moves the user from passive consumption to active strategic planning.
+        - **Compliance Q&A (OpenAI API):** Goal: Demystify complex governance topics. Viz: A question input field in the "Governance" section. Interaction: User asks a compliance-related question, and the OpenAI API provides a summarized, easy-to-understand answer within the context of the plan. Justification: This makes critical compliance information more accessible to all stakeholders, regardless of their legal expertise.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link.active {
+            border-bottom-color: #0ea5e9; /* sky-500 */
+            color: #0284c7; /* sky-600 */
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            display: none;
+        }
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+            display: none;
+        }
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #0ea5e9;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-800">Strategic Plan: Healthcare Data Monetization</h1>
+            <p class="mt-2 text-lg text-slate-600">An AI-enhanced interactive guide to leveraging data assets for growth and innovation.</p>
+        </header>
+
+        <nav class="flex justify-center border-b border-slate-200 mb-8">
+            <button class="nav-link active py-4 px-6 text-sm md:text-base font-medium text-slate-500 hover:text-sky-600" data-target="overview">Overview</button>
+            <button class="nav-link py-4 px-6 text-sm md:text-base font-medium text-slate-500 hover:text-sky-600" data-target="architecture">Architecture</button>
+            <button class="nav-link py-4 px-6 text-sm md:text-base font-medium text-slate-500 hover:text-sky-600" data-target="monetization">Monetization</button>
+            <button class="nav-link py-4 px-6 text-sm md:text-base font-medium text-slate-500 hover:text-sky-600" data-target="governance">Governance</button>
+            <button class="nav-link py-4 px-6 text-sm md:text-base font-medium text-slate-500 hover:text-sky-600" data-target="roadmap">Roadmap</button>
+        </nav>
+
+        <main>
+            <section id="overview" class="content-section active">
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4">Plan Overview</h2>
+                    <p class="mb-6">This document outlines a concrete strategic plan for the medical provider to leverage its existing data assets and infrastructure. The goal is to unlock new revenue streams, enhance operational efficiency, and improve patient outcomes through a structured and ethical approach to data monetization. This interactive dashboard provides a comprehensive look at the plan's key components.</p>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-slate-50 p-6 rounded-lg">
+                            <h3 class="text-xl font-semibold text-slate-700 mb-3">Data Assets at a Glance</h3>
+                            <p class="mb-4">The provider's 3TB Azure Data Lake is a rich repository of diverse information. Understanding its composition is the first step toward unlocking its value.</p>
+                            <div class="chart-container">
+                                <canvas id="dataSourcesChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-6 rounded-lg">
+                            <h3 class="text-xl font-semibold text-slate-700 mb-3">Key Metrics & Goals</h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start">
+                                    <span class="text-sky-500 mr-3 mt-1">➔</span>
+                                    <div><strong class="text-slate-800">Enhance Architecture:</strong> Implement a real-time, privacy-preserving data pipeline using Kafka, Spark, and MongoDB.</div>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-sky-500 mr-3 mt-1">➔</span>
+                                    <div><strong class="text-slate-800">Improve Operations:</strong> Leverage real-time analytics to achieve measurable cost savings and efficiency gains.</div>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-sky-500 mr-3 mt-1">➔</span>
+                                    <div><strong class="text-slate-800">Launch Pilot Project:</strong> Initiate one high-potential, low-risk direct monetization project to establish a model for future collaborations.</div>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-sky-500 mr-3 mt-1">➔</span>
+                                    <div><strong class="text-slate-800">Ensure Governance:</strong> Formalize a repeatable, auditable data request and approval workflow with legal and medical oversight.</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="architecture" class="content-section">
+                 <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-2">Real-Time Data Architecture Blueprint</h2>
+                    <p class="mb-6 text-slate-600">This architecture enables real-time data monetization with privacy protection at its core. It uses a modern stack to ingest, process, and serve data securely. Click each stage for technical details.</p>
+                    <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 md:space-x-2 text-center p-4 bg-slate-50 rounded-lg">
+                        <div class="architecture-stage cursor-pointer p-3 rounded-lg hover:bg-sky-100 flex-1 w-full" data-modal="sources">
+                            <div class="text-4xl mb-2">🏥</div>
+                            <h4 class="font-bold">1. Data Sources</h4>
+                            <p class="text-xs">EMR, LIS, RIS, SAP</p>
+                        </div>
+                        <div class="text-2xl text-slate-400">→</div>
+                        <div class="architecture-stage cursor-pointer p-3 rounded-lg hover:bg-sky-100 flex-1 w-full" data-modal="ingestion">
+                            <div class="text-4xl mb-2">🌊</div>
+                            <h4 class="font-bold">2. Ingestion (Kafka)</h4>
+                            <p class="text-xs">Real-time Event Streams</p>
+                        </div>
+                        <div class="text-2xl text-slate-400">→</div>
+                        <div class="architecture-stage cursor-pointer p-3 rounded-lg hover:bg-sky-100 flex-1 w-full" data-modal="masking">
+                            <div class="text-4xl mb-2">🛡️</div>
+                            <h4 class="font-bold">3. Masking (Spark)</h4>
+                            <p class="text-xs">Real-time Anonymization</p>
+                        </div>
+                        <div class="text-2xl text-slate-400">→</div>
+                         <div class="architecture-stage cursor-pointer p-3 rounded-lg hover:bg-sky-100 flex-1 w-full" data-modal="analytics">
+                            <div class="text-4xl mb-2">⚙️</div>
+                            <h4 class="font-bold">4. Processing (Spark)</h4>
+                            <p class="text-xs">MLlib Analytics & Enrichment</p>
+                        </div>
+                        <div class="text-2xl text-slate-400">→</div>
+                        <div class="architecture-stage cursor-pointer p-3 rounded-lg hover:bg-sky-100 flex-1 w-full" data-modal="storage">
+                            <div class="text-4xl mb-2">🗄️</div>
+                            <h4 class="font-bold">5. Storage (MongoDB)</h4>
+                            <p class="text-xs">Flexible NoSQL Documents</p>
+                        </div>
+                         <div class="text-2xl text-slate-400">→</div>
+                        <div class="architecture-stage cursor-pointer p-3 rounded-lg hover:bg-sky-100 flex-1 w-full" data-modal="consumption">
+                            <div class="text-4xl mb-2">💡</div>
+                            <h4 class="font-bold">6. Output Layer</h4>
+                            <p class="text-xs">APIs, Dashboards, Research</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="monetization" class="content-section">
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4">Concrete Monetization Strategies</h2>
+                    <p class="mb-6">Leverage the data pipeline for both internal improvements and external revenue generation. Use the AI Strategy Assistant below to explore potential projects.</p>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-sky-600 mb-4 border-b-2 border-sky-200 pb-2">Indirect Monetization (First Priority)</h3>
+                            <div class="space-y-4">
+                                <div class="bg-slate-50 p-4 rounded-lg shadow-sm">
+                                    <h4 class="font-semibold text-slate-800">Operational Efficiency</h4>
+                                    <p class="text-sm text-slate-600">Analyze SAP and bed management data to optimize staffing, reduce wait times, and cut supply chain costs.</p>
+                                </div>
+                                <div class="bg-slate-50 p-4 rounded-lg shadow-sm">
+                                    <h4 class="font-semibold text-slate-800">Improved Patient Outcomes</h4>
+                                    <p class="text-sm text-slate-600">Use predictive analytics to identify at-risk patients for conditions like oncology, enabling early intervention.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-700 mb-4 border-b-2 border-slate-200 pb-2">Direct Monetization (Future Opportunity)</h3>
+                             <div class="space-y-4">
+                                <div class="bg-slate-100 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-slate-800">Data-as-a-Service (DaaS)</h4>
+                                    <p class="text-sm text-slate-600">Provide anonymized, aggregated datasets to pharmaceutical companies, device manufacturers, and public health agencies.</p>
+                                </div>
+                                <div class="bg-slate-100 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-slate-800">AI Development Partnerships</h4>
+                                    <p class="text-sm text-slate-600">Collaborate with health-tech companies to develop and validate new AI algorithms using the provider's rich dataset.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-8 bg-sky-50 border border-sky-200 p-6 rounded-lg">
+                        <h3 class="text-xl font-bold text-sky-800 mb-3">🤖 AI Strategy Assistant</h3>
+                        <p class="text-sm text-sky-700 mb-4">Select a strategy and a focus area to generate a high-level project brief.</p>
+                        <div class="grid sm:grid-cols-3 gap-4">
+                            <select id="strategySelect" class="bg-white border border-slate-300 rounded-md p-2">
+                                <option value="AI Development Partnerships">AI Development Partnerships</option>
+                                <option value="Targeted Research Platforms">Targeted Research Platforms</option>
+                                <option value="Data-as-a-Service (DaaS)">Data-as-a-Service (DaaS)</option>
+                            </select>
+                            <select id="areaSelect" class="bg-white border border-slate-300 rounded-md p-2">
+                                <option value="Oncology">Oncology</option>
+                                <option value="Cardiovascular">Cardiovascular</option>
+                                <option value="Rare Diseases">Rare Diseases</option>
+                                <option value="Infectious Diseases">Infectious Diseases</option>
+                            </select>
+                            <button id="generateBriefBtn" class="bg-sky-500 text-white font-bold py-2 px-4 rounded-md hover:bg-sky-600 transition-colors flex items-center justify-center">
+                                Generate Brief
+                            </button>
+                        </div>
+                        <div id="briefResult" class="mt-4 p-4 bg-white rounded-md border border-slate-200 text-sm text-slate-600 min-h-[100px]">
+                            Select options and click "Generate Brief" to see AI-powered suggestions here.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="governance" class="content-section">
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4">The Ethical & Regulatory Gauntlet</h2>
+                    <p class="mb-6">Patient trust is the most valuable asset. The architecture is designed with compliance at its core, featuring real-time masking, consent tracking, and configurable retention policies.</p>
+                     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                            <h4 class="font-bold text-red-800">Internal Governance</h4>
+                            <p class="text-sm text-red-700">All projects require prior authorization from the Legal Department and Corporate Medical Direction.</p>
+                        </div>
+                        <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
+                            <h4 class="font-bold text-amber-800">Regulatory Compliance</h4>
+                            <p class="text-sm text-amber-700">Strict adherence to GDPR/HIPAA via real-time data masking and tokenization before storage or analysis.</p>
+                        </div>
+                        <div class="bg-sky-50 border-l-4 border-sky-500 p-4 rounded">
+                            <h4 class="font-bold text-sky-800">Consent & Security</h4>
+                            <p class="text-sm text-sky-700">Role-based access with audit trails and integrated consent tracking to manage opt-in/opt-out logic.</p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 p-6 rounded-lg">
+                        <h3 class="text-xl font-bold text-slate-800 mb-3">🤖 AI Compliance Q&A</h3>
+                        <p class="text-sm text-slate-600 mb-4">Have a question about data privacy or compliance? Ask our AI assistant for a simplified explanation.</p>
+                        <div class="flex gap-4">
+                            <input type="text" id="complianceQuestion" placeholder="e.g., How is patient consent handled for research?" class="flex-grow border border-slate-300 rounded-md p-2">
+                            <button id="askComplianceBtn" class="bg-slate-600 text-white font-bold py-2 px-4 rounded-md hover:bg-slate-700 transition-colors flex items-center justify-center">
+                                Ask
+                            </button>
+                        </div>
+                        <div id="complianceResult" class="mt-4 p-4 bg-white rounded-md border border-slate-200 text-sm text-slate-600 min-h-[100px]">
+                            Your question's answer will appear here.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="roadmap" class="content-section">
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-6">A Phased Strategic Roadmap</h2>
+                    <div class="relative">
+                        <div class="border-l-2 border-slate-300 absolute h-full top-0 left-4"></div>
+                        <div class="space-y-8">
+                            <div class="pl-8 relative">
+                                <div class="absolute w-4 h-4 bg-sky-500 rounded-full mt-1.5 -left-2 border-4 border-white"></div>
+                                <h3 class="font-bold text-sky-600">Phase 1: Foundation & Governance (Months 1-6)</h3>
+                                <ul class="list-disc list-inside text-slate-600 mt-2 space-y-1">
+                                    <li>Deploy Kafka, Spark, and MongoDB infrastructure.</li>
+                                    <li>Develop and validate the real-time data masking and tokenization module.</li>
+                                    <li>Create and document the formal data request and approval workflow with Legal/Medical.</li>
+                                </ul>
+                            </div>
+                            <div class="pl-8 relative">
+                                <div class="absolute w-4 h-4 bg-slate-400 rounded-full mt-1.5 -left-2 border-4 border-white"></div>
+                                <h3 class="font-bold text-slate-700">Phase 2: Internal Value Realization (Months 7-18)</h3>
+                                <ul class="list-disc list-inside text-slate-600 mt-2 space-y-1">
+                                    <li>Launch real-time operational dashboards (e.g., patient flow, resource utilization).</li>
+                                    <li>Develop initial predictive models for internal use (e.g., readmission risk).</li>
+                                    <li>Demonstrate tangible ROI from real-time data initiatives.</li>
+                                </ul>
+                            </div>
+                            <div class="pl-8 relative">
+                                <div class="absolute w-4 h-4 bg-slate-400 rounded-full mt-1.5 -left-2 border-4 border-white"></div>
+                                <h3 class="font-bold text-slate-700">Phase 3: External Pilot & Expansion (Months 19+)</h3>
+                                <ul class="list-disc list-inside text-slate-600 mt-2 space-y-1">
+                                    <li>Select and launch one high-potential, low-risk direct monetization pilot via the secure API layer.</li>
+                                    <li>Use the pilot to refine the external collaboration model and legal frameworks.</li>
+                                    <li>Scale successful pilots and explore further direct monetization opportunities.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="modalBackdrop" class="modal-backdrop"></div>
+    <div id="architectureModal" class="modal bg-white w-11/12 md:max-w-2xl p-6 rounded-lg shadow-xl">
+        <div class="flex justify-between items-center mb-4">
+            <h3 id="modalTitle" class="text-xl font-bold text-slate-800"></h3>
+            <button id="closeModal" class="text-slate-500 hover:text-slate-800 text-2xl">&times;</button>
+        </div>
+        <div id="modalContent" class="text-slate-600 text-sm"></div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.content-section');
+            const architectureStages = document.querySelectorAll('.architecture-stage');
+            const modalBackdrop = document.getElementById('modalBackdrop');
+            const modal = document.getElementById('architectureModal');
+            const closeModalBtn = document.getElementById('closeModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            
+            const generateBriefBtn = document.getElementById('generateBriefBtn');
+            const briefResult = document.getElementById('briefResult');
+            const askComplianceBtn = document.getElementById('askComplianceBtn');
+            const complianceResult = document.getElementById('complianceResult');
+
+            const modalData = {
+                sources: {
+                    title: '1. Data Sources',
+                    content: `<p>Data originates from various provider systems like LIS, RIS, SAP, EMRs, blood banks, and lab systems. Data types include demographics, diagnoses (ICD-10), procedures (Fonasa codes), medications, lab/imaging reports, clinical notes, and patient-reported outcomes.</p>`
+                },
+                ingestion: {
+                    title: '2. Ingestion with Apache Kafka',
+                    content: `<p>Each source system pushes real-time or batch updates into dedicated Apache Kafka topics. Topics are categorized by data type (e.g., lab_results, appointments) and sensitivity level (e.g., pii_data, anonymized_data) to segregate data streams from the outset.</p>`
+                },
+                masking: {
+                    title: '3. Real-Time Data Masking Middleware',
+                    content: `<p>A critical step for GDPR/HIPAA compliance. Before storage, data passes through a masking and tokenization module running in Spark Streaming. This module masks identifiers (name, phone), pseudonymizes patient/visit IDs, and obfuscates PHI. An encrypted mapping is maintained for legally permissible re-identification.</p>`
+                },
+                analytics: {
+                    title: '4. Real-Time Processing with Spark Streaming + MLlib',
+                    content: `<p>Cleaned and masked data is processed in real-time to detect outliers, identify patterns for cohort selection (e.g., oncology patients), and run early-stage predictive analytics for internal and external (pharma) insights.</p>`
+                },
+                storage: {
+                    title: '5. NoSQL Storage in MongoDB',
+                    content: `<p>All enriched, structured, and anonymized records are stored in MongoDB. Its flexible document-based schema allows for fast retrieval and filtering based on complex research or monetization criteria and enables easy integration with downstream APIs.</p>`
+                },
+                consumption: {
+                    title: '6. Output Layer – Monetization, Research & Insights',
+                    content: `<p>The value is delivered through multiple channels: <ul class="list-disc list-inside mt-2"><li><strong>Dashboards & Reporting:</strong> For health outcome research and clinical trial cohort generation.</li><li><strong>APIs:</strong> For external partners (pharma, biotech) to query anonymized datasets.</li><li><strong>Exports:</strong> Data can be exported in various formats like CSV, HL7, FHIR, or custom JSON schemas.</li></ul></p>`
+                }
+            };
+
+            async function callOpenAIAPI(prompt, outputElement, buttonElement) {
+                const originalButtonText = buttonElement.innerHTML;
+                buttonElement.innerHTML = '<div class="spinner"></div>';
+                buttonElement.disabled = true;
+                outputElement.innerHTML = 'Generating response...';
+
+                const apiUrl = '/api/ask'; // Use backend proxy
+
+                const payload = { prompt };
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API request failed with status ${response.status}`);
+                    }
+
+                    const result = await response.json();
+
+                    if (result.response) {
+                        outputElement.innerHTML = result.response.replace(/\n/g, '<br>');
+                    } else {
+                        outputElement.textContent = 'Sorry, I could not generate a response. The model may have returned an empty result.';
+                    }
+                } catch (error) {
+                    console.error("OpenAI API Error:", error);
+                    outputElement.textContent = 'An error occurred while contacting the AI assistant. Please check the console for details.';
+                } finally {
+                    buttonElement.innerHTML = originalButtonText;
+                    buttonElement.disabled = false;
+                }
+            }
+
+            generateBriefBtn.addEventListener('click', () => {
+                const strategy = document.getElementById('strategySelect').value;
+                const area = document.getElementById('areaSelect').value;
+                const prompt = `Acting as a healthcare data strategy consultant, generate a high-level project brief for an initiative focused on "${strategy}" within the clinical area of "${area}". The available data is from a real-time, anonymized healthcare data pipeline. The brief should be concise and include: 1. Key Objectives, 2. Potential Partners, and 3. Primary Risks.`;
+                callOpenAIAPI(prompt, briefResult, generateBriefBtn);
+            });
+            
+            askComplianceBtn.addEventListener('click', () => {
+                const question = document.getElementById('complianceQuestion').value;
+                if (!question.trim()) {
+                    complianceResult.textContent = 'Please enter a question.';
+                    return;
+                }
+                const prompt = `Within the context of a healthcare data monetization plan that uses real-time data masking and tokenization under GDPR/HIPAA guidelines, answer the following question for a non-legal audience: "${question}". The answer should be practical and concise.`;
+                callOpenAIAPI(prompt, complianceResult, askComplianceBtn);
+            });
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    const target = link.getAttribute('data-target');
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    sections.forEach(section => {
+                        section.style.display = section.id === target ? 'block' : 'none';
+                    });
+                });
+            });
+            
+            document.querySelector('.nav-link.active').click();
+
+            function openModal(stage) {
+                const data = modalData[stage];
+                if (data) {
+                    modalTitle.textContent = data.title;
+                    modalContent.innerHTML = data.content;
+                    modal.style.display = 'block';
+                    modalBackdrop.style.display = 'block';
+                }
+            }
+
+            function closeModal() {
+                modal.style.display = 'none';
+                modalBackdrop.style.display = 'none';
+            }
+
+            architectureStages.forEach(stage => {
+                stage.addEventListener('click', () => {
+                    openModal(stage.getAttribute('data-modal'));
+                });
+            });
+
+            closeModalBtn.addEventListener('click', closeModal);
+            modalBackdrop.addEventListener('click', closeModal);
+
+            const dataSourcesCtx = document.getElementById('dataSourcesChart').getContext('2d');
+            new Chart(dataSourcesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Clinical (EHR)', 'Imaging', 'Lab Results', 'Operational/Financial', 'Patient Data'],
+                    datasets: [{
+                        label: 'Data Source Volume',
+                        data: [45, 25, 15, 10, 5],
+                        backgroundColor: ['#0ea5e9', '#38bdf8', '#7dd3fc', '#64748b', '#94a3b8'],
+                        borderColor: '#f8fafc',
+                        borderWidth: 4,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { family: 'Inter' } } },
+                        tooltip: { callbacks: { label: (c) => `${c.label}: ${c.parsed}%` } }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
