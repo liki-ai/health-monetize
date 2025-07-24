@@ -405,17 +405,16 @@
                 const area = document.getElementById('areaSelect').value;
                 //const prompt = `Acting as a healthcare data strategy consultant, generate a high-level project brief for an initiative focused on "${strategy}" within the clinical area of "${area}". The available data is from a real-time, anonymized healthcare data pipeline. The brief should be concise and include: 1. Key Objectives, 2. Potential Partners, and 3. Primary Risks.`;
                 const prompt = `
-                    You are a senior strategy advisor with experience in healthcare data monetization.
+                        You're a healthcare strategy advisor.
 
-                    Using clear and human language, write a concise and professional 3-part brief focused on "${strategy}" in the clinical area of "${area}". Use bullet points, avoid jargon, and focus on action-oriented insights.
+                        Write a 3-part brief on "${strategy}" in "${area}":
 
-                    Use this structure:
-                    1. Key Objectives – short, measurable goals.
-                    2. Ideal Partners – practical examples with role.
-                    3. Risks – summarized with mitigation hints.
+                        1. Objectives – clear, measurable
+                        2. Partners – real examples + role
+                        3. Risks – with mitigation tips
 
-                    Make it sound human, realistic, and decision-oriented – as if you’re presenting to a hospital CEO.
-                    `;
+                        Be concise, human, and CEO-ready.
+                        `;
                 callOpenAIAPI(prompt, briefResult, generateBriefBtn);
             });
             
