@@ -1,12 +1,9 @@
-
-import { config } from 'dotenv';
-config();
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { prompt } = req.body;
   const apiKey = process.env.OPENAI_API_KEY;
+
   if (!apiKey) {
     console.error("OPENAI_API_KEY is missing");
     return res.status(500).json({ error: "OpenAI API key not configured." });
