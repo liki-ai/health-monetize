@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { prompt } = req.body;
+  const { prompt, final } = req.body;
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
@@ -17,9 +17,10 @@ export default async function handler(req, res) {
         "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "gpt-4",
+        model: final ? "gpt-4" : "gpt-3.5-turbo",
         messages: [{ role: "user", content: prompt }],
-        temperature: 0.7
+        temperature: 0.7,
+        max_tokens: 300
       })
     });
 
